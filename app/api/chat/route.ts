@@ -70,8 +70,6 @@ export async function POST(req: Request) {
         stopWhen: stepCountIs(10),
         providerOptions: {
             openai: {
-                reasoningSummary: 'auto',
-                reasoningEffort: 'low',
                 parallelToolCalls: false,
             }
         }
