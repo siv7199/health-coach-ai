@@ -5,15 +5,22 @@ import { PINECONE_INDEX_NAME } from '@/config';
 
 function getPineconeIndex() {
     const apiKey = process.env.PINECONE_API_KEY;
-    if (!apiKey) {
-        throw new Error('PINECONE_API_KEY is not set');
+    const host = process.env.PINECONE_INDEX_HOST;
+    
+    if (!apiKey || !host) {
+        return null;
     }
 
-    const pinecone = new Pinecone({
-        apiKey,
-    });
+    try {
+        const pinecone = new Pinecone({
+            apiKey,
+        });
 
-    return pinecone.Index(PINECONE_INDEX_NAME);
+        return pinecone.Index(PINECONE_INDEX_NAME, host);
+    } catch (error) {
+        console.warn('Failed to initialize Pinecone:', error);
+        return null;
+    }
 }
 
 export async function searchPinecone(
@@ -21,6 +28,11 @@ export async function searchPinecone(
 ): Promise<string> {
     try {
         const pineconeIndex = getPineconeIndex();
+        
+        if (!pineconeIndex) {
+            return '< results > Knowledge base not configured. </results>';
+        }
+
         const results = await pineconeIndex.namespace('default').searchRecords({
             query: {
                 inputs: {
