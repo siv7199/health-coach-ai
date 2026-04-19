@@ -43,7 +43,7 @@ export async function searchPinecone(
             fields: ['text', 'pre_context', 'post_context', 'source_url', 'source_description', 'source_type', 'order'],
         });
 
-        if (!results || results.records?.length === 0) {
+        if (!results || !results.result?.hits || results.result.hits.length === 0) {
             return '< results > No knowledge base content found. </results>';
         }
 
