@@ -3,19 +3,23 @@ import { PINECONE_TOP_K } from '@/config';
 import { searchResultsToChunks, getSourcesFromChunks, getContextFromSources } from '@/lib/sources';
 import { PINECONE_INDEX_NAME } from '@/config';
 
-if (!process.env.PINECONE_API_KEY) {
-    throw new Error('PINECONE_API_KEY is not set');
+function getPineconeIndex() {
+    const apiKey = process.env.PINECONE_API_KEY;
+    if (!apiKey) {
+        throw new Error('PINECONE_API_KEY is not set');
+    }
+
+    const pinecone = new Pinecone({
+        apiKey,
+    });
+
+    return pinecone.Index(PINECONE_INDEX_NAME);
 }
-
-export const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
-
-export const pineconeIndex = pinecone.Index(PINECONE_INDEX_NAME);
 
 export async function searchPinecone(
     query: string,
 ): Promise<string> {
+    const pineconeIndex = getPineconeIndex();
     const results = await pineconeIndex.namespace('default').searchRecords({
         query: {
             inputs: {
